@@ -9,26 +9,47 @@
 
 
 int main(){
+    int debug = 1;    
+    initPi();
+    readInput();
 
-	pinMode(4,INPUT);
-	pinMode(5,OUTPUT);
-	int i;
-	const struct timespec req = {0,5000};
-	//req.tv_sec = 0;
-	//req.tv_nsec = 3000;
 
-	for(i=0;i<24;i++){
-		digitalWrite(5,0);
-		nanosleep(&req,NULL);
-		digitalWrite(5,1);
-		nanosleep(&req, NULL);
-		digitalWrite(5,0);
-		nanosleep($req, NULL);
-		int k = digitalRead(4);
-		printf("%i",k);
-	}
-	printf("\n");
-
-	return 0;
+    return 0;
 }
+       
+int initPi(){
+     //Starte WiringPi Api 
+        if(wiringPiSetup() == -1)
+        return 1;
+        pinMode(2,INPUT);
+        pinMode(0,OUTPUT);
+}
+
+int readInput(){
+     digitalWrite(0,0);
+        delay(1000);
+        int count = 0;
+        const struct timespec req = {0,3000};
+        int i;
+        if(digitalRead(2) == 0){
+                for(i=0;i<27;i++){
+                        if(debug)printf("Before impuls Data: %i \n",digitalRead(2));
+                        digitalWrite(0,1);
+                        nanosleep(&req, NULL);
+                        digitalWrite(0,0);
+                        if(digitalRead(2)) count = count + 1;
+                        count = count << 1;
+                        if(debug) printf("After Implus  Data: %i \n",digitalRead(2));
+                        if(debug)printf("\n");
+                        nanosleep(&req,NULL);
+                }       
+        }
+        
+}       
+       
+int convertBinarytoDec(){
+    }
+
+       
+
 
