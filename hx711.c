@@ -44,6 +44,7 @@ int readInput(){
                         nanosleep(&req,NULL);
                 }       
         }
+		return count;
         
 }       
        
