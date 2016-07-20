@@ -6,7 +6,7 @@
 int main(){
 	(void) init();
 	while(1){
-		printf("%i g \n",mesure());
+		printf("%i g \n",measure());
 		sleep(1);
 	}
 	return 0;
