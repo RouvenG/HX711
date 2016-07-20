@@ -14,7 +14,7 @@ int debug = 0; // simple debug flag
 const struct timespec req = {0,100000000000}; //time of one period there is a weird bug here
 int withoutWeight = 0; //24Bit number from HX711 when there is no weight on the scale
 
-int mesure(){
+int measure(){
     return toGram(receive24BitNumber());
 }
 
