@@ -1,6 +1,7 @@
 // WiringPi-Api
 #include <wiringPi.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h> //for const struct timespec for nanosleep
 #include "hx711.h"
 /* Note that this driver is programmed according to
@@ -58,17 +59,17 @@ int tare(){
 int receive24BitNumber(){
     // Each conversation period is complete with first
     // receiving the number and than resetting the clock
-    signed int count = 0; // count will be the 24-bit number received from hx711
+    unsigned int count = 0; // count will be the 24-bit number received from hx711
     if(digitalRead(2) == 0){
         for(int i=0;i<24;i++){
             digitalWrite(0,1);
             nanosleep(&req, NULL);
             digitalWrite(0,0);
-            if(i < 23) count = count << 1; //The last bit needs no shift
+            if(i < 24 & i > 0) count = count << 1; //The last bit needs no shift
             if(digitalRead(2)) count = count + 1;
             nanosleep(&req,NULL);
         }
-        resetClock(2); //please look at the gain setting at resetClock() definition
+        resetClock(1); //please look at the gain setting at resetClock() definition
 	delay(100);
         return sm2tc(count);
     }return -1;
@@ -92,17 +93,28 @@ void resetClock(int gain){
 //Converts the 24 Bit number to decimal system on a 32 Bit processor
 int sm2tc(int x) {
     int m = x >> 23;
-    return (~m & x) | (((x & 0x400000) - x) & m);
+    if(m == 1) x = x -16777216;
+    return x;
 }
 
 
 /*For this function you should calibrate the scale on your own, for me it seems the
 coefficient is no constant */
 int toGram(int numFromScale){
-	printf("%i \n", numFromScale);
-   	float weight = (numFromScale - withoutWeight)*0.06; // the 0.06 comes from the calibration you have do do on your own
+	float temp  = (numFromScale/10000) * (withoutWeight/10000); // without the division by 10000 the muliplication would exceed the int-representation on a 32bit machine
+        if(temp<0){
+		printf("<0 \n");
+		temp = abs(withoutWeight + numFromScale);
+		if(withoutWeight > numFromScale) temp = temp * -1;
+	}else{
+		temp = abs(withoutWeight - numFromScale);
+		if(withoutWeight < numFromScale) temp = temp* -1 ;
+	}
+   	float weight = temp * 0.008; // the factor comes from the calibration and depends on your scale
 	return (int) weight;
 }
+
+
 
 
 
